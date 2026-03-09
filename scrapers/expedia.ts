@@ -1,4 +1,4 @@
-// Agoda Scraper for Arzo Makati Hotel
+// Expedia Scraper for Arzo Makati Hotel
 // Scrapes page HTML for LLM analysis (no price extraction here)
 
 import { chromium } from 'playwright';
@@ -9,7 +9,7 @@ import { join } from 'path';
 export interface ScrapeResult {
   success: boolean;
   hotel: string;
-  source: 'agoda';
+  source: 'expedia';
   checkIn: string;
   checkOut: string;
   scrapedAt: string;
@@ -17,7 +17,7 @@ export interface ScrapeResult {
   error?: string;
 }
 
-export interface AgodaConfig {
+export interface ExpediaConfig {
   checkIn: string; // YYYY-MM-DD
   checkOut: string; // YYYY-MM-DD
   adults?: number;
@@ -26,9 +26,9 @@ export interface AgodaConfig {
   currency?: string;
 }
 
-const BASE_URL = 'https://www.agoda.com/oyo-737-arzo-hotel-makati/hotel/manila-ph.html';
+const BASE_URL = 'https://www.expedia.com/Hotel-Search';
 
-export async function scrapeAgoda(config: AgodaConfig): Promise<ScrapeResult> {
+export async function scrapeExpedia(config: ExpediaConfig): Promise<ScrapeResult> {
   const {
     checkIn,
     checkOut,
@@ -41,12 +41,12 @@ export async function scrapeAgoda(config: AgodaConfig): Promise<ScrapeResult> {
   const browser: Browser = await chromium.launch({ headless: true });
   const page: Page = await browser.newPage();
 
-  const url = `${BASE_URL}?checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}&rooms=${rooms}&currencyCode=${currency}`;
+  const url = `${BASE_URL}?destination=Arzo%20Makati%20Hotel&startDate=${checkIn}&endDate=${checkOut}&adults=${adults}&children=${children}&rooms=${rooms}&currencyCode=${currency}`;
 
-  console.log(`🔍 Scraping Agoda for Arzo Makati: ${checkIn} → ${checkOut}`);
+  console.log(`🔍 Scraping Expedia for Arzo Makati: ${checkIn} → ${checkOut}`);
 
   try {
-    // Navigate to Agoda
+    // Navigate to Expedia
     await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
 
     // Wait for page to fully load
@@ -57,7 +57,7 @@ export async function scrapeAgoda(config: AgodaConfig): Promise<ScrapeResult> {
 
     // Save HTML to storage
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const storageDir = 'storage/agoda';
+    const storageDir = 'storage/expedia';
 
     mkdirSync(storageDir, { recursive: true });
 
@@ -75,24 +75,24 @@ export async function scrapeAgoda(config: AgodaConfig): Promise<ScrapeResult> {
     const result: ScrapeResult = {
       success: true,
       hotel: 'Arzo Makati',
-      source: 'agoda',
+      source: 'expedia',
       checkIn,
       checkOut,
       scrapedAt: new Date().toISOString(),
       htmlPath
     };
 
-    console.log(`✅ Agoda scrape successful`);
+    console.log(`✅ Expedia scrape successful`);
     await browser.close();
     return result;
 
   } catch (error) {
-    console.error(`❌ Agoda scrape failed: ${error}`);
+    console.error(`❌ Expedia scrape failed: ${error}`);
 
     const result: ScrapeResult = {
       success: false,
       hotel: 'Arzo Makati',
-      source: 'agoda',
+      source: 'expedia',
       checkIn,
       checkOut,
       scrapedAt: new Date().toISOString(),
@@ -109,12 +109,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
-    console.log('Usage: node scrapers/agoda.ts <checkIn> <checkOut> [adults] [children] [rooms]');
-    console.log('Example: node scrapers/agoda.ts 2026-03-18 2026-03-19 1 0 1');
+    console.log('Usage: node scrapers/expedia.ts <checkIn> <checkOut> [adults] [children] [rooms]');
+    console.log('Example: node scrapers/expedia.ts 2026-03-18 2026-03-19 1 0 1');
     process.exit(1);
   }
 
-  const config: AgodaConfig = {
+  const config: ExpediaConfig = {
     checkIn: args[0],
     checkOut: args[1],
     adults: args[2] ? parseInt(args[2]) : 1,
@@ -122,7 +122,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     rooms: args[4] ? parseInt(args[4]) : 1
   };
 
-  scrapeAgoda(config)
+  scrapeExpedia(config)
     .then(result => {
       console.log(JSON.stringify(result, null, 2));
       process.exit(result.success ? 0 : 1);

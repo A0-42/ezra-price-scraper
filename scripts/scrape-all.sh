@@ -13,18 +13,16 @@ node scrapers/agoda.ts "$CHECK_IN" "$CHECK_OUT" 1 0 1
 echo ""
 
 echo "--- Booking ---"
-# node scrapers/booking.ts "$CHECK_IN" "$CHECK_OUT" 1 0 1
-echo "⏳ Not implemented yet"
+node scrapers/booking.ts "$CHECK_IN" "$CHECK_OUT" 1 0 1
 echo ""
 
 echo "--- C-Trip ---"
-# node scrapers/ctrip.ts "$CHECK_IN" "$CHECK_OUT" 1 0 1
-echo "⏳ Not implemented yet"
+node scrapers/ctrip.ts "$CHECK_IN" "$CHECK_OUT" 1 0 1
 echo ""
 
 echo "--- Expedia ---"
-# node scrapers/expedia.ts "$CHECK_IN" "$CHECK_OUT" 1 0 1
-echo "⏳ Not implemented yet"
+node scrapers/expedia.ts "$CHECK_IN" "$CHECK_OUT" 1 0 1
 echo ""
 
 echo "✅ Scraping complete"
+
