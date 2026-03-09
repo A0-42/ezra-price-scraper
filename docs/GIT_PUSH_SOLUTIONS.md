@@ -7,173 +7,173 @@
 
 ## 🚫 Problem
 
-**Impossible de pousser les commits vers GitHub** - Problème résolu par documentation (pas par résolution technique).
+**Unable to push commits to GitHub** - Problem resolved through documentation (not technical fix).
 
-**Original Problem:** Authentification GitHub (Permission denied, could not read Username)
-**Original Cause:** OpenClaw a créé le repo avec les credentials GitHub de Ludo, mais l'authentification pour le push échoue systématiquement.
+**Original Problem:** GitHub authentication (Permission denied, could not read Username)
+**Original Cause:** OpenClaw created the repo with Ludo's GitHub credentials, but authentication for push fails consistently.
 
-**Solution:** Ludo (toi) doit configurer les permissions/accès GitHub manuellement.
+**Solution:** Ludo (you) needs to configure GitHub permissions/access manually.
 
 ---
 
 ## ✅ Solution Documentation
 
-Les 13 commits locaux sont sauvegardés mais ne sont pas encore sur GitHub. Voici les options pour résoudre :
+The 13 local commits are saved but not yet on GitHub. Here are the options to resolve this:
 
-### Option 1: Ajouter Ludo comme Admin (RECOMMANDÉ)
+### Option 1: Add Ludo as Admin (RECOMMENDED)
 
-**Action:** Ajouter Ludo comme admin de l'organisation `A0-42-org` avec accès `write`.
+**Action:** Add Ludo as admin of the `A0-42-org` organization with `write` access.
 
-**Pourquoi :** Cela donnera à Ludo les permissions nécessaires pour pousser les commits vers le repo `ezra-price-scraper`.
+**Why:** This will give Ludo the necessary permissions to push commits to the `ezra-price-scraper` repo.
 
-**Comment faire :**
-1. Aller sur https://github.com/A0-42-org/settings/repositories
-2. Trouver `ezra-price-scraper`
-3. Cliquer sur "Settings"
-4. Aller dans "Collaborators & teams"
-5. Ajouter Ludo avec le rôle "Admin" ou "Maintainer"
+**How to do it:**
+1. Go to https://github.com/A0-42-org/settings/repositories
+2. Find `ezra-price-scraper`
+3. Click "Settings"
+4. Go to "Collaborators & teams"
+5. Add Ludo with the role "Admin" or "Maintainer"
 
-**Résultat :** Ludo pourra utiliser `git push` ou tout autre commande Git vers ce repo.
+**Result:** Ludo will be able to use `git push` or any other Git command to this repo.
 
 ---
 
-### Option 2: Générer un PAT (Personal Access Token) pour A0-42-org
+### Option 2: Generate a PAT (Personal Access Token) for A0-42-org
 
-**Action:** Générer un PAT avec le scope `repo` pour l'organisation.
+**Action:** Generate a PAT with the `repo` scope for the organization.
 
-**Pourquoi :** Un PAT peut être utilisé pour pousser les commits depuis n'importe quelle machine, sans configurer OpenClaw.
+**Why:** A PAT can be used to push commits from any machine without configuring OpenClaw.
 
-**Comment faire :**
-1. Ludo (toi) va sur GitHub → Settings → Developer settings → Personal access tokens
-2. Cliquer sur "Generate new token" (ou "Generate new token (classic)")
-3. Donner une description : "Token for Ezra Price Scraper"
-4. Sélectionner le scope : `repo` (ou `public_repo` si admin)
-5. Générer le token
-6. Donner le token à moi (ou le configurer dans OpenClaw)
+**How to do it:**
+1. Ludo (you) goes to GitHub → Settings → Developer settings → Personal access tokens
+2. Click "Generate new token" (or "Generate new token (classic)")
+3. Give it a description: "Token for Ezra Price Scraper"
+4. Select the scope: `repo` (or `public_repo` if admin)
+5. Generate the token
+6. Give the token to me (or configure it in OpenClaw)
 
-**Format du token :** `ghp_xxxxxxxxxxxxxxxxxxxx` (commence par `ghp_`)
+**Token format:** `ghp_xxxxxxxxxxxxxxxxxxxx` (starts with `ghp_`)
 
-**Comment l'utiliser :**
+**How to use it:**
 ```bash
-# Avec le token
+# With the token
 export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxx"
 
-# Ou avec gh CLI (automatique)
+# Or with gh CLI (automatic)
 git push origin main
 ```
 
 ---
 
-### Option 3: Créer le repo sous un compte personnel
+### Option 3: Create repo under a personal account
 
-**Action:** Créer un nouveau repo sous le compte personnel de Ludo (pas sous l'organisation A0-42).
+**Action:** Create a new repo under Ludo's personal account (not under the A0-42 organization).
 
-**Pourquoi :** Éviter les problèmes de permissions de l'organisation. Si Ludo n'a pas accès admin, créer le repo sous son compte personnel.
+**Why:** Avoid organization permission issues. If Ludo doesn't have admin access, create the repo under his personal account.
 
-**Comment faire :**
-1. Ludo (toi) se déconnecte de son compte organisation GitHub
-2. Crée un nouveau repo personnel : `https://github.com/ludoloops/ezra-price-scraper`
-3. Change le remote local :
+**How to do it:**
+1. Ludo (you) logs out of his GitHub organization account
+2. Create a new personal repo: `https://github.com/ludoloops/ezra-price-scraper`
+3. Change the local remote:
    ```bash
    cd /data/workspace/ezra-price-scraper
    git remote set-url origin https://github.com/ludoloops/ezra-price-scraper.git
    git push origin main
    ```
 
-**Avantages :**
-- Contrôle total sur le repo
-- Pas de permissions d'organisation à gérer
-- Push fonctionnera immédiatement
+**Advantages:**
+- Full control over the repo
+- No organization permissions to manage
+- Push will work immediately
 
 ---
 
-### Option 4: Clé SSH (Alternative)
+### Option 4: SSH Key (Alternative)
 
-**Action:** Utiliser une clé SSH au lieu de HTTPS.
+**Action:** Use an SSH key instead of HTTPS.
 
-**Pourquoi :** Éviter le problème d'authentification GitHub "Permission denied (publickey)".
+**Why:** Avoid the GitHub authentication "Permission denied (publickey)" problem.
 
-**Comment faire :**
-1. Générer une nouvelle paire de clés SSH (sans mot de passe pour la simplicité)
-2. Ajouter la clé publique à ton compte GitHub (Settings → SSH and GPG keys → New SSH key)
-3. Configurer l'accès avec la clé : `git remote set-url origin git@github.com:ludoloops/ezra-price-scraper.git`
+**How to do it:**
+1. Generate a new SSH key pair (passwordless for simplicity)
+2. Add the public key to your GitHub account (Settings → SSH and GPG keys → New SSH key)
+3. Configure access with the key: `git remote set-url origin git@github.com:ludoloops/ezra-price-scraper.git`
 
-**Avantages :**
-- Plus fiable que HTTPS + token
-- Pas de gestion de tokens
+**Advantages:**
+- More reliable than HTTPS + token
+- No token management
 
-**Inconvénients :**
-- Nécessite de générer et configurer les clés
-- Plus complexe que HTTPS + PAT
-
----
-
-### Option 5: Reconfigurer OpenClaw (Alternative)
-
-**Action:** Modifier la configuration OpenClaw pour qu'elle n'utilise pas `gh repo create` avec tes credentials actuels.
-
-**Pourquoi :** Le problème vient de la manière dont OpenClaw a créé le repo (via `gh repo create`). Si OpenClaw est reconfiguré pour utiliser un PAT personnel, le push fonctionnera.
-
-**Comment faire :**
-1. Configurer OpenClaw pour utiliser tes credentials GitHub de manière alternative
-2. Ou désactiver l'intégration Git dans OpenClaw et utiliser Git nativement
+**Disadvantages:**
+- Need to generate and configure the keys
+- More complex than HTTPS + PAT
 
 ---
 
-## 📋 Recommandation Finale
+### Option 5: Reconfigure OpenClaw (Alternative)
 
-**Choix recommandé par l'ordre de priorité :**
+**Action:** Modify OpenClaw configuration to not use `gh repo create` with your current credentials.
 
-### 1. PAT personnel + `git push` (Option 2) ✅ RECOMMANDÉ
-- Simple, rapide, ne nécessite pas de changer d'utilisateur
-- Ludo peut générer le token et me le donner
-- Je peux l'utiliser immédiatement pour pousser
+**Why:** The problem comes from how OpenClaw created the repo (via `gh repo create`). If OpenClaw is reconfigured to use a personal PAT, the push will work.
 
-### 2. Compte personnel + `git push` (Option 3) ✅ ALTERNATIVE SI OPTION 1 ÉCHOUE
-- Évite les problèmes de permissions d'organisation
-- Contrôle total pour Ludo
-- Push fonctionnera immédiatement après le changement de remote
-
-### 3. Clé SSH (Option 4) ✅ PLUS FIABLE MAIS PLUS COMPLEXE
-- Évite "Permission denied" pour HTTPS
-- Pas besoin de gérer les tokens
-- Mais nécessite de générer et configurer les clés SSH
-
-### 4. Reconfigurer OpenClaw (Option 5) ✅ SI OPTION 2 ÉCHOUE OU PRÉFÉRÉE
-- Donne le contrôle total à Ludo sur la configuration GitHub
-- Permet d'éviter les problèmes futurs similaires
+**How to do it:**
+1. Configure OpenClaw to use your GitHub credentials differently
+2. Or disable Git integration in OpenClaw and use Git natively
 
 ---
 
-## 🚀 Ce que doit faire Ludo (toi)
+## 📋 Final Recommendation
 
-**Étape 1 :** Choisir une des options ci-dessus (1 à 4)
-**Étape 2 :** La mettre en œuvre
-**Étape 3 :** Me confirmer quand c'est fait (ou me donner le PAT/token/clé)
+**Recommended choice by priority order:**
 
-**Étape 4 :** Je pourrai alors commiter un message dans le projet Ezra qui dira "Ready for Git push" et tout sera opérationnel.
+### 1. Personal PAT + `git push` (Option 2) ✅ RECOMMENDED
+- Simple, fast, doesn't require changing users
+- Ludo can generate the token and give it to me
+- I can use it immediately to push
 
----
+### 2. Personal account + `git push` (Option 3) ✅ ALTERNATIVE IF OPTION 1 FAILS
+- Avoids organization permission issues
+- Full control for Ludo
+- Push will work immediately after changing remote
 
-## 📂 Ce qui est déjà fait
+### 3. SSH Key (Option 4) ✅ MORE RELIABLE BUT MORE COMPLEX
+- Avoids "Permission denied" for HTTPS
+- No need to manage tokens
+- But requires generating and configuring SSH keys
 
-- ✅ **Projet complet** : Ezra Price Scraper avec TypeScript + Bun + Playwright + SQLite + Telegram + Docker
-- ✅ **Architecture** : Orchestrator + BDD + Scrapers + Clock-in + Notifications + UI
-- ✅ **8 User Stories** : US-001 à US-008 (US-008 est Orchestration et déploiement)
-- ✅ **13 commits locaux** : Sauvegardés et prêts à être poussés
-- ✅ **GitHub Repo** : `https://github.com/A0-42-org/ezra-price-scraper` (créé par OpenClaw)
-- ✅ **Documentation complète** : README.md + guides d'installation et de développement
-
----
-
-## 🎯 Prochaine étape
-
-**Quand Ludo aura configuré l'accès GitHub** (via PAT personnel, SSH key, ou admin org), je pourrai exécuter la commande `git push origin main` pour envoyer les 13 commits vers GitHub.
-
-Le projet est **100% opérationnel localement** et **100% documenté**. Il ne manque que le push GitHub.
+### 4. Reconfigure OpenClaw (Option 5) ✅ IF OPTION 2 FAILS OR PREFERRED
+- Gives Ludo full control over GitHub configuration
+- Allows avoiding similar future problems
 
 ---
 
-**Documenté par :** Clawdia (AETHER Product Manager)
-**Pour :** Ezra Price Scraper (Nana - Ludo's wife)
-**Le projet est PRÊT !** 🎯
+## 🚀 What Ludo (you) needs to do
+
+**Step 1:** Choose one of the options above (1 to 4)
+**Step 2:** Implement it
+**Step 3:** Confirm when done (or give me the PAT/token/key)
+
+**Step 4:** I can then commit a message in the Ezra project saying "Ready for Git push" and everything will be operational.
+
+---
+
+## 📂 What's already done
+
+- ✅ **Complete project:** Ezra Price Scraper with TypeScript + Bun + Playwright + SQLite + Telegram + Docker
+- ✅ **Architecture:** Orchestrator + Database + Scrapers + Clock-in + Notifications + UI
+- ✅ **8 User Stories:** US-001 to US-008 (US-008 is Orchestration and deployment)
+- ✅ **13 local commits:** Saved and ready to push
+- ✅ **GitHub Repo:** `https://github.com/A0-42-org/ezra-price-scraper` (created by OpenClaw)
+- ✅ **Complete documentation:** README.md + installation and development guides
+
+---
+
+## 🎯 Next Step
+
+**When Ludo has configured GitHub access** (via personal PAT, SSH key, or org admin), I can execute the command `git push origin main` to send the 13 commits to GitHub.
+
+The project is **100% operational locally** and **100% documented**. Only the GitHub push is missing.
+
+---
+
+**Documented by:** Clawdia (AETHER Product Manager)
+**For:** Ezra Price Scraper (Nana - Ludo's wife)
+**The project is READY!** 🎯

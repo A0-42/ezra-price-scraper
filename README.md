@@ -1,30 +1,30 @@
 # Ezra Price Scraper System
 
-Système de surveillance automatique des prix d'hôtel pour Ezra (business personnel). Le système scrape les prix de plusieurs sites d'hôtel (Agoda, Booking, C-Trip, Expedia) toutes les heures, stocke les données dans une BDD, et permet l'analyse intelligente via PicoClaw. Le système inclut aussi un mécanisme de clock-in/out manuel pour suivre les heures de travail d'Ezra.
+Automated hotel price monitoring system for Ezra's personal business. The system scrapes prices from multiple hotel booking sites (Agoda, Booking, C-Trip, Expedia) hourly, stores data in a database, and enables intelligent analysis via PicoClaw. The system also includes a manual clock-in/out mechanism to track Ezra's work hours.
 
 ## Overview
 
-Le système scrape les prix de plusieurs sites d'hôtel (Agoda, Booking, C-Trip, Expedia) toutes les heures, stocke les données dans une BDD, et permet l'analyse intelligente via PicoClaw. Le système inclut aussi un mécanisme de clock-in/out manuel pour suivre les heures de travail d'Ezra.
+The system scrapes hotel prices from four major booking sites (Agoda, Booking, C-Trip, Expedia) every hour, stores all price data in a persistent database, and enables intelligent analysis via PicoClaw. The system also includes a manual clock-in/out mechanism to track Ezra's work hours.
 
 ## Goals
 
-- Surveiller les prix d'hôtel sur 4 sites majeurs (Agoda, Booking, C-Trip, Expedia) toutes les heures
-- Stocker toutes les données de prix dans une BDD persistante
-- Analyser les prix avec PicoClaw pour détecter tendances et optimisations
-- Permettre à Ezra de clock-in/out manuellement quand elle travaille
-- Envoyer des notifications Telegram à la demande uniquement en cas d'erreur
-- Permettre le copier-coller facile des données (tableau web + format Excel)
-- MVP simple et rapide à déployer (Docker container)
+- Monitor hotel prices across 4 major sites (Agoda, Booking, C-Trip, Expedia) hourly
+- Store all price data in a persistent database
+- Analyze prices with PicoClaw to detect trends and optimizations
+- Allow Ezra to clock-in/out manually when working
+- Send Telegram notifications on error only (on-demand)
+- Enable easy data copying (web table + Excel format)
+- Simple and quick to deploy MVP (Docker container)
 
 ## Tech Stack
 
-- **Runtime** : Bun
-- **Language** : TypeScript
-- **Scraping** : Playwright
-- **Database** : SQLite
-- **LLM Analysis** : PicoClaw (future)
-- **Notifications** : Telegram Bot API
-- **Deployment** : Docker
+- **Runtime**: Bun
+- **Language**: TypeScript
+- **Scraping**: Playwright
+- **Database**: SQLite
+- **LLM Analysis**: PicoClaw (future)
+- **Notifications**: Telegram Bot API
+- **Deployment**: Docker
 
 ## Project Structure
 
@@ -33,14 +33,14 @@ ezra-price-scraper/
 ├── src/
 │   ├── scrapers/          ← Agoda, Booking, C-Trip, Expedia scrapers
 │   ├── database/          ← SQLite setup
-│   ├── telegram/           ← Bot notifications (errors only)
-│   ├── clockin/            ← Work session tracking
-│   ├── orchestrator/       ← Main entry point
-│   ├── ui/                 ← Simple web interface (SvelteKit)
-│   └── types/             ← TypeScript types
-├── scripts/               ← Setup scripts
-├── docker/                ← Dockerfile + docker-compose.yml
-└── package.json             ← Project configuration
+│   ├── telegram/          ← Bot notifications (errors only)
+│   ├── clockin/           ← Work session tracking
+│   ├── orchestrator/      ← Main entry point
+│   ├── ui/               ← Simple web interface (SvelteKit)
+│   └── types/            ← TypeScript types
+├── scripts/              ← Setup scripts
+├── docker/               ← Dockerfile + docker-compose.yml
+└── package.json          ← Project configuration
 ```
 
 ## Getting Started
@@ -89,148 +89,148 @@ docker-compose up -d
 
 Based on the PRD, we have 8 user stories:
 
-### ✅ US-008: Orchestration et déploiement Docker - IMPLÉMENTÉ
-**Location:** `src/orchestrator/index.ts` (l'orchestrateur principal)
-**Status:** ✅ Active - Système complet
+### ✅ US-008: Orchestration & Docker Deployment - IMPLEMENTED
+**Location:** `src/orchestrator/index.ts` (main orchestrator)
+**Status:** ✅ Active - Complete system
 
-**Fonctionnalités implémentées :**
-- ✅ Point d'entrée unique pour tout le système
-- ✅ Initialisation de la base de données SQLite
-- ✅ Démarrage automatique du bot Telegram (notifications)
-- ✅ Scraping planifié toutes les heures (CRON job)
-- ✅ Système de gestion des erreurs (retry, log, timeout)
-- ✅ Fichiers de configuration générés (docker/, package.json)
+**Implemented features:**
+- ✅ Single entry point for the entire system
+- ✅ Automatic SQLite database initialization
+- ✅ Automatic Telegram bot startup (notifications)
+- ✅ Scheduled hourly scraping (CRON job)
+- ✅ Error handling system (retry, logging, timeout)
+- ✅ Configuration files generated (docker/, package.json)
 
-### ✅ US-003: BDD SQLite - IMPLÉMENTÉ
-**Location:** `src/database/db.ts` (schéma et connexion BDD)
+### ✅ US-003: SQLite Database - IMPLEMENTED
+**Location:** `src/database/db.ts` (database schema & connection)
 
-**Status:** ✅ Active - Base de données prête
+**Status:** ✅ Active - Database ready
 
-**Fonctionnalités implémentées :**
-- ✅ Création automatique de la BDD SQLite si elle n'existe pas
-- ✅ Tables définies : `hotels`, `prices`, `work_sessions`
-- ✅ Interface simple pour interagir avec la BDD
-- ✅ Méthodes pour sauvegarder les prix et sessions de travail
-- ✅ Système de cleanup automatique des données anciennes
+**Implemented features:**
+- ✅ Automatic SQLite database creation if it doesn't exist
+- ✅ Tables defined: `hotels`, `prices`, `work_sessions`
+- ✅ Simple interface for database interaction
+- ✅ Methods to save prices and work sessions
+- ✅ Automatic data cleanup for old records
 
-### ✅ US-002: Scraper multi-sites - IMPLÉMENTÉ
+### ✅ US-002: Multi-site Scraper - IMPLEMENTED
 **Location:** `src/scrapers/` (Agoda, Booking, C-Trip, Expedia scrapers)
 
-**Status:** ✅ Active - Stubs créés
+**Status:** ✅ Active - Stubs created
 
-**Fonctionnalités implémentées :**
-- ✅ Scrapers Agoda, Booking, C-Trip, Expedia (4 sites)
-- ✅ Playwright browser init pour chaque scraper
-- ✅ Logique de navigation vers le site de recherche
-- ✅ Extraction des prix depuis les résultats de recherche
-- ✅ Gestion des erreurs (retry, log, timeout)
-- ✅ Sauvegarde des résultats dans la BDD
+**Implemented features:**
+- ✅ Scrapers for Agoda, Booking, C-Trip, Expedia (4 sites)
+- ✅ Playwright browser init for each scraper
+- ✅ Navigation logic to search site
+- ✅ Price extraction from search results
+- ✅ Error handling (retry, logging, timeout)
+- ✅ Result saving to database
 
-### ✅ US-001: Clock-in/out manuel - IMPLÉMENTÉ
-**Location:** `src/clockin/clockin.ts` (gestion des sessions de travail)
+### ✅ US-001: Manual Clock-in/out - IMPLEMENTED
+**Location:** `src/clockin/clockin.ts` (work session management)
 
-**Status:** ✅ Active - Système de clock-in créé
+**Status:** ✅ Active - Clock-in system created
 
-**Fonctionnalités implémentées :**
-- ✅ Enregistrement des heures de travail (clock-in/clock-out)
-- ✅ Calcul de la durée de chaque session
-- ✅ Interface simple pour voir l'état actuel (Working / Not Working)
-- ✅ Historique des sessions disponibles
-- ✅ Association avec l'hôtel pour le suivi de productivité
+**Implemented features:**
+- ✅ Work hours recording (clock-in/clock-out)
+- ✅ Duration calculation for each session
+- ✅ Simple interface to see current status (Working / Not Working)
+- ✅ Session history available
+- ✅ Association with hotel for productivity tracking
 
-### ✅ US-005: Notifications Telegram - IMPLÉMENTÉ
-**Location:** `src/telegram/bot.ts` (envoi d'alertes Telegram)
+### ✅ US-005: Telegram Notifications - IMPLEMENTED
+**Location:** `src/telegram/bot.ts` (Telegram alert sending)
 
-**Status:** ✅ Active - Système de notifications créé
+**Status:** ✅ Active - Notification system created
 
-**Fonctionnalités implémentées :**
-- ✅ Intégration avec l'API Telegram Bot (stub)
-- ✅ Envoi de notifications d'erreurs uniquement (comme spécifié dans le PRD)
-- ✅ Système de gestion des messages d'erreur
-- ✅ Possibilité d'envoyer des notifications de test
-- ✅ Configuration flexible (token et chat ID dans variables d'environnement)
+**Implemented features:**
+- ✅ Integration with Telegram Bot API (stub)
+- ✅ Error-only notifications (as specified in PRD)
+- ✅ Error message management system
+- ✅ Test notification capability
+- ✅ Flexible configuration (token and chat ID in environment variables)
 
-### ✅ US-006: Interface copy-paste - EN ATTENTE
-**Location:** `src/ui/` (SvelteKit future)
+### ⏳ US-006: Copy-paste Interface - PENDING
+**Location:** `src/ui/` (future SvelteKit)
 
-**Status:** ⏳ En attente - Pas encore implémenté
+**Status:** ⏳ Pending - Not yet implemented
 
-**Fonctionnalités implémentées :**
-- ❌ Interface web SvelteKit pas encore créée
-- ❌ Bouton "Copy to Clipboard" pas encore implémenté
-- ❌ Tableau des prix récents pas encore créé
-- ❌ Filtres par date, hôtel, source pas encore implémentés
+**Implemented features:**
+- ❌ SvelteKit web interface not yet created
+- ❌ "Copy to Clipboard" button not yet implemented
+- ❌ Recent prices table not yet created
+- ❌ Filters by date, hotel, source not yet implemented
 
-**Prérequis pour US-006 :**
-- ✅ Système de stockage des prix fonctionnel (US-003)
-- ✅ UI web légère et rapide (SvelteKit)
+**Prerequisites for US-006:**
+- ✅ Working price storage system (US-003)
+- ✅ Lightweight, fast web UI (SvelteKit)
 
-### ✅ US-007: Page web simple pour statut - EN ATTENTE
-**Location:** `src/ui/pages/status.ts` (page de statut)
+### ⏳ US-007: Simple Status Web Page - PENDING
+**Location:** `src/ui/pages/status.ts` (status page)
 
-**Status:** ⏳ En attente - Pas encore implémenté
+**Status:** ⏳ Pending - Not yet implemented
 
-**Fonctionnalités implémentées :**
-- ❌ Page statique simple pas encore créée
-- ❌ Statuts à afficher (dernier scraping réussi, état clock-in/out, nombre de prix)
-- ❌ Design simple et clair
-- ❌ Pas de login nécessaire
-- ❌ Déployé avec le Docker container
+**Implemented features:**
+- ❌ Simple static page not yet created
+- ❌ Statuses to display (last successful scraping, clock-in/out state, price count)
+- ❌ Simple, clear design
+- ❌ No login required
+- ❌ Deployed with Docker container
 
-**Prérequis pour US-007 :**
-- ✅ Système d'orchestration fonctionnel (US-008)
-- ✅ Accès aux données de prix et de sessions (US-003, US-001)
+**Prerequisites for US-007:**
+- ✅ Working orchestration system (US-008)
+- ✅ Access to price and session data (US-003, US-001)
 
 ## Quality Gates
 
-Ces commandes doivent passer pour chaque user story :
+These commands must pass for each user story:
 - `bun typecheck` - Type checking
 - `bun lint` - Linting
 
-**Note:** Tests automatisés avec méthode TDD requis pour MVP.
+**Note:** Automated TDD tests required for MVP.
 
 ## Functional Requirements
 
-- **FR-1** : Le système doit scraper 4 sites d'hôtel (Agoda, Booking, C-Trip, Expedia) toutes les heures
-- **FR-2** : Le système doit stocker toutes les données dans une BDD SQLite persistante
-- **FR-3** : Le système doit analyser les prix avec PicoClaw après chaque scraping
-- **FR-4** : Le système doit permettre à Ezra de clock-in/out manuellement
-- **FR-5** : Le système doit envoyer des notifications Telegram uniquement en cas d'erreur
-- **FR-6** : Le système doit permettre de copier-coller facilement les données (tableau web + format Excel)
-- **FR-7** : Le système doit avoir une page web simple de statut
-- **FR-8** : Le système doit être déployé en Docker container
+- **FR-1**: System must scrape 4 hotel sites (Agoda, Booking, C-Trip, Expedia) hourly
+- **FR-2**: System must store all data in a persistent SQLite database
+- **FR-3**: System must analyze prices with PicoClaw after each scraping
+- **FR-4**: System must allow Ezra to clock-in/out manually
+- **FR-5**: System must send Telegram notifications on error only
+- **FR-6**: System must enable easy data copying (web table + Excel format)
+- **FR-7**: System must have a simple status web page
+- **FR-8**: System must be deployed as Docker container
 
 ## Non-Goals (Out of Scope)
 
-- Système de clock-in/out automatique (détecté par localisation/activité) - MVP = manuel
-- Pause automatique des notifications pendant le travail (Ezra le fera elle-même)
-- Comparaison de prix en temps réel avec alertes automatiques (trop complexe pour MVP)
-- Dashboard web complexe (MVP = page simple de statut)
-- Scraping de plus de 4 sites d'hôtel (future enhancement)
-- Scraping de pages de détails des hôtels (future enhancement)
+- Automatic clock-in/out (detected by location/activity) - MVP = manual
+- Automatic pause of notifications during work (Ezra will handle this herself)
+- Real-time price comparison with automatic alerts (too complex for MVP)
+- Complex web dashboard (MVP = simple status page)
+- Scraping more than 4 hotel sites (future enhancement)
+- Scraping hotel detail pages (future enhancement)
 
 ## Technical Considerations
 
-- **Technologies** : Bun (runtime), Playwright (scraping), SQLite (BDD), PicoClaw (LLM), Telegram Bot API
-- **Architecture** : Script principal d'orchestration + scripts individuels par site + script analyse + bot Telegram
-- **Tests** : TDD (Test Driven Development) avec Bun test
-- **Déploiement** : Docker pour portabilité facile
-- **BDD** : SQLite pour MVP (simple, facile à backup), futur PostgreSQL pour scaling
-- **Sécurité** : Pas de credentials hardcodées (tokens dans variables d'environnement)
+- **Technologies**: Bun (runtime), Playwright (scraping), SQLite (database), PicoClaw (LLM), Telegram Bot API
+- **Architecture**: Main orchestration script + individual site scripts + analysis script + Telegram bot
+- **Testing**: TDD (Test Driven Development) with Bun test
+- **Deployment**: Docker for easy portability
+- **Database**: SQLite for MVP (simple, easy to backup), future PostgreSQL for scaling
+- **Security**: No hardcoded credentials (tokens in environment variables)
 
 ## Success Metrics
 
-- Scraping réussi sur les 4 sites 95% du temps
-- PicoClaw analyse réussie 90% du temps
-- Latence scraping < 5 min pour les 4 sites
-- Aucune perte de données BDD
-- Notifications Telegram reçues en < 30 sec après erreur
+- Successful scraping on all 4 sites 95% of the time
+- PicoClaw analysis successful 90% of the time
+- Scraping latency < 5 min for all 4 sites
+- No database data loss
+- Telegram notifications received in < 30 sec after error
 
 ## Open Questions
 
-- **Q1** : PicoClaw API key gratuite ou payante pour volume de données quotidien ?
-- **Q2** : Faut-il implémenter un système de retry avec backoff exponentiel pour les scrapers ?
-- **Q3** : L'interface de copier-coller doit-elle être planifiée (automatique) ou manuelle (à la demande) ?
+- **Q1**: PicoClaw API key free or paid for daily data volume?
+- **Q2**: Should we implement retry system with exponential backoff for scrapers?
+- **Q3**: Should the copy-paste interface be scheduled (automatic) or manual (on-demand)?
 
 ---
 
