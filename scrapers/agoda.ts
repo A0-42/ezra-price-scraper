@@ -52,6 +52,23 @@ export async function scrapeAgoda(config: AgodaConfig): Promise<ScrapeResult> {
     // Wait for page to fully load
     await page.waitForTimeout(5000);
 
+    // Wait for calendar prices to load dynamically
+    console.log('⏳ Waiting for calendar prices to load...');
+    await page.waitForTimeout(10000);
+
+    // Try to scroll to calendar to trigger lazy loading
+    try {
+      await page.evaluate(() => {
+        window.scrollBy(0, 500);
+      });
+      await page.waitForTimeout(3000);
+    } catch (e) {
+      console.log('⚠️ Scroll failed, continuing...');
+    }
+
+    // Final wait for prices
+    await page.waitForTimeout(5000);
+
     // Get HTML content
     const htmlContent = await page.content();
 
