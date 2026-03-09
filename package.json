@@ -1,0 +1,24 @@
+{
+  "name": "ezra-price-scraper",
+  "version": "0.1.0",
+  "description": "Hotel price scraper system for Ezra - multi-site scraping with Playwright",
+  "type": "module",
+  "main": "src/orchestrator/index.ts",
+  "scripts": {
+    "dev": "bun --watch src/ui/server.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "build": "tsc",
+    "setup-db": "bun src/database/db.ts init",
+    "install-browsers": "bunx playwright install chromium"
+    "docker:build": "docker build -t ezra-scraper .",
+    "docker:up": "docker-compose up -d"
+  },
+  "dependencies": {
+    "playwright": "^1.58.2"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.9.3"
+  }
+}
