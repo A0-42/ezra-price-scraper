@@ -5,14 +5,16 @@
   "type": "module",
   "main": "src/orchestrator/index.ts",
   "scripts": {
-    "dev": "bun --watch src/ui/server.ts",
+    "dev": "bun --watch src/orchestrator/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
     "build": "tsc",
-    "setup-db": "bun src/database/db.ts init",
-    "install-browsers": "bunx playwright install chromium"
+    "setup-db": "bun run src/database/db.ts init",
+    "install-browsers": "bunx playwright install chromium",
     "docker:build": "docker build -t ezra-scraper .",
-    "docker:up": "docker-compose up -d"
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "test:telegram": "bun run src/telegram/bot-stub.ts sendTestNotification"
   },
   "dependencies": {
     "playwright": "^1.58.2"
