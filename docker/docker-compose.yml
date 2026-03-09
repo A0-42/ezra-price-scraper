@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  ezra-scraper:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    image: ezra-price-scraper:latest
+    container_name: ezra-price-scraper
+    restart: unless-stopped
+    environment:
+      - DB_PATH=/app/data/prices.db
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - PICOCLAW_API_KEY=${PICOCLAW_API_KEY}
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "3000:3000"  # Optional - for web UI
+    command: bun run src/orchestrator/index.ts
