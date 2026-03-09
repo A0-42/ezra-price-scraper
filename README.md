@@ -92,6 +92,27 @@ docker build -t ezra-scraper .
 docker-compose up -d
 ```
 
+## PRD (Product Requirements Document)
+
+Le PRD complet est disponible dans [docs/PRD.md](docs/PRD.md).
+
+### Overview du PRD
+
+- **8 User Stories** : De US-001 à US-008
+- **Tech Stack** : TypeScript, Playwright, SQLite, PicoClaw, Telegram, Docker
+- **Architecture** : Orchestrator + Scrapers multi-sites + BDD + Notifications + UI
+- **Déploiement** : Docker avec docker-compose
+
+### Points clés du PRD
+
+- **Sites à scraper** : Agoda, Booking, C-Trip, Expedia (4 sites)
+- **Surveillance** : Toutes les heures (cron job)
+- **Storage** : SQLite avec backup quotidien
+- **LLM Analysis** : PicoClaw (future)
+- **Notifications** : Telegram (erreurs uniquement)
+- **Clock-in/Out** : Manuel pour MVP
+- **Interface** : Copy-paste simple + format Excel
+
 ## User Stories Implementation
 
 Based on the PRD, we have 8 user stories:
