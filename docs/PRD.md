@@ -1,164 +1,201 @@
-# PRD: Ezra Price Scraper System
+# Product Requirements Document (PRD)
 
-**Date:** 2026-03-09
-**Status:** Draft
-**Project:** Ezra Price Scraper
+Generated: 2026-03-09
+Architecture: PicoClaw Orchestrator + Playwright Scrapers + SQLite + Telegram
 
 ---
+
+[PRD]
+# PRD: Ezra Price Scraper System
 
 ## Overview
 
-Système de surveillance automatique des prix d'hôtel pour Ezra (business personnel). Le système scrape les prix de plusieurs sites d'hôtel (Agoda, Booking, C-Trip, Expedia) toutes les heures, stocke les données dans une BDD, et permet l'analyse intelligente via PicoClaw. Le système inclut aussi un mécanisme de clock-in/out manuel pour suivre les heures de travail d'Ezra.
+Automated hotel price monitoring system for Arzo Makati hotel. The system uses PicoClaw as central orchestrator to launch Playwright scrapers every hour, analyze extracted prices with LLM, and store data in SQLite. Ezra can access data via Telegram bot and manage monitoring sessions with clock-in/clock-out. Error notifications are sent via Telegram.
 
 ## Goals
 
-- Surveiller les prix d'hôtel sur 4 sites majeurs (Agoda, Booking, C-Trip, Expedia) toutes les heures
-- Stocker toutes les données de prix dans une BDD persistante
-- Analyser les prix avec PicoClaw pour détecter tendances et optimisations
-- Permettre à Ezra de clock-in/out manuellement quand elle travaille
-- Envoyer des notifications Telegram à la demande uniquement en cas d'erreur
-- Permettre le copier-coller facile des données (tableau web + format Excel)
-- MVP simple et rapide à déployer (Docker container)
+- Monitor Arzo Makati hotel prices across 4 major booking sites (Agoda, Booking, C-Trip, Expedia) every hour
+- Store all price data in a persistent SQLite database with timestamps
+- Automatically detect and extract prices using PicoClaw LLM analysis
+- Provide easy access to price data via Telegram bot
+- Enable Ezra to control monitoring with clock-in/clock-out
+- Send Telegram notifications on errors only
+- Simple MVP with minimal complexity for rapid deployment
 
 ## Quality Gates
 
-Ces commandes doivent passer pour chaque user story :
-- `bun typecheck` - Type checking
-- `bun lint` - Linting
-
-**Note:** Tests automatisés avec méthode TDD requis pour MVP.
+These commands must pass for every user story:
+- `npm run typecheck` - Type checking (TypeScript scrapers)
+- `npm run lint` - Linting (TypeScript scrapers)
+- `npm run test` - Automated testing (when tests are implemented)
 
 ## User Stories
 
-### US-001: Clock-in/out manuel pour Ezra
-**Description:** As Ezra, I want to clock-in and clock-out when I start/finish working so that system knows when I'm at work.
+### US-001: PicoClaw Orchestration Setup
+**Description:** As a system, I want PicoClaw configured to orchestrate the entire scraping workflow so that automation is reliable and centralized.
 
 **Acceptance Criteria:**
-- [ ] Interface simple avec boutons "Clock In" et "Clock Out"
-- [ ] Heure de clock-in/out stockée dans la BDD
-- [ ] État actuel affiché (Working / Not Working)
-- [ ] Empêche double clock-in ou clock-out sans clock-in préalable
-- [ ] Historique des sessions de travail disponible
+- PicoClaw workspace initialized with proper structure
+- Cron job configured for hourly execution
+- SQLite database schema created (`hotels`, `prices`, `work_sessions` tables)
+- Telegram channel configured in PicoClaw config.json
+- Error handling and retry logic implemented
+- Environment variables for sensitive data (Telegram token, etc.)
 
-### US-002: Scraper multi-sites (Agoda, Booking, C-Trip, Expedia)
-**Description:** As a system, I need to scrape prices from 4 hotel booking sites (Agoda, Booking, C-Trip, Expedia) every hour so that price data is always up-to-date.
-
-**Acceptance Criteria:**
-- [ ] Playwright script pour chaque site (4 scrapers)
-- [ ] Anti-bot protection minimal pour éviter les blocages
-- [ ] Scraping exécuté toutes les heures (cron job)
-- [ ] Données scrapées : hôtel, date, prix, source
-- [ ] Gestion des erreurs de scraping (retry, log)
-- [ ] Timeout configurable pour éviter les blocages
-
-### US-003: BDD SQLite pour stockage des prix
-**Description:** As a system, I need a SQLite database to store all price data so that data persists across restarts and can be queried.
+### US-002: Agoda Scraper Implementation
+**Description:** As a system, I want to scrape Agoda prices for Arzo Makati hotel so that I can track price changes.
 
 **Acceptance Criteria:**
-- [ ] BDD SQLite créée automatiquement si elle n'existe pas
-- [ ] Tables : hotels, prices, sessions_work, logs
-- [ ] Index sur (hotel_id, date, source) pour performances
-- [ ] Backup automatique de la BDD quotidien
-- [ ] Mécanisme de cleanup des données anciennes (optionnel)
+- Playwright script navigates to Agoda search for "Arzo Makati"
+- Extracts price from search results
+- Saves raw HTML/JSON to `storage/agoda/` with timestamp
+- Extracts price, date, and room type
+- Returns structured data: `{ hotel: "Arzo Makati", source: "agoda", price: number, scrapedAt: string }`
+- Error handling for network failures and selector changes
+- Script runs as standalone: `node scrapers/agoda.ts`
 
-### US-004: Analyse LLM avec PicoClaw
-**Description:** As a system, I want to use PicoClaw to analyze price data so that Ezra gets intelligent insights and trends.
-
-**Acceptance Criteria:**
-- [ ] Script qui lit les données de la BDD
-- [ ] Appel à PicoClaw avec prompt d'analyse
-- [ ] Résultats d'analyse stockés dans BDD (table analyses)
-- [ ] Analyses : tendances de prix, meilleures offres, anomalies
-- [ ] Déclenchement automatique après chaque scraping toutes les heures
-
-### US-005: Notifications Telegram (erreurs uniquement, à la demande)
-**Description:** As Ezra, I want to receive Telegram notifications only when errors occur or on demand so that I'm not overwhelmed with messages.
+### US-003: Booking Scraper Implementation
+**Description:** As a system, I want to scrape Booking.com prices for Arzo Makati hotel so that I can track price changes.
 
 **Acceptance Criteria:**
-- [ ] Configuration Telegram (bot token, chat ID) dans fichier config
-- [ ] Notification envoyée quand scraper échoue (retry failed)
-- [ ] Notification envoyée quand analyse PicoClaw échoue
-- [ ] Notification envoyée quand clock-in/out échoue
-- [ ] Pas de notifications normales (prix, scraping success)
-- [ ] Commande de test pour vérifier la connexion Telegram
+- Playwright script navigates to Booking.com search for "Arzo Makati"
+- Extracts price from search results
+- Saves raw HTML/JSON to `storage/booking/` with timestamp
+- Extracts price, date, and room type
+- Returns structured data: `{ hotel: "Arzo Makati", source: "booking", price: number, scrapedAt: string }`
+- Error handling for network failures and selector changes
+- Script runs as standalone: `node scrapers/booking.ts`
 
-### US-006: Interface simple pour copier-coller les données
-**Description:** As Ezra, I want to see and copy-paste price data easily so that I can use it in Excel/Google Sheets manually.
-
-**Acceptance Criteria:**
-- [ ] Page web avec tableau des prix récents
-- [ ] Filtres simples : date range, hôtel, source
-- [ ] Bouton "Copy to Clipboard" ou sélection facile
-- [ ] Données formatées en tableau (colonnes : date, hôtel, prix, source)
-- [ ] Sessions de travail affichées (clock-in/out)
-- [ ] Pas de login nécessaire ou mot de passe simple
-- [ ] Données copiables en un clic (format compatible Excel)
-
-### US-007: Page web simple pour statut
-**Description:** As Ezra, I want a simple web page to check system status so that I can see if everything is working without looking at logs.
+### US-004: C-Trip Scraper Implementation
+**Description:** As a system, I want to scrape C-Trip prices for Arzo Makati hotel so that I can track price changes.
 
 **Acceptance Criteria:**
-- [ ] Page statique simple (SvelteKit ou HTML)
-- [ ] Statuts affichés : Dernier scraping réussi, État clock-in/out, Nombre de prix stockés
-- [ ] Heure de dernière activité
-- [ ] Pas de login nécessaire (page publique ou mot de passe simple)
-- [ ] Déployé avec le Docker container
+- Playwright script navigates to C-Trip search for "Arzo Makati"
+- Extracts price from search results
+- Saves raw HTML/JSON to `storage/ctrip/` with timestamp
+- Extracts price, date, and room type
+- Returns structured data: `{ hotel: "Arzo Makati", source: "ctrip", price: number, scrapedAt: string }`
+- Error handling for network failures and selector changes
+- Script runs as standalone: `node scrapers/ctrip.ts`
 
-### US-008: Orchestration et déploiement Docker
-**Description:** As a developer (Ludo), I want to deploy entire system as a Docker container so that it can run anywhere easily.
+### US-005: Expedia Scraper Implementation
+**Description:** As a system, I want to scrape Expedia prices for Arzo Makati hotel so that I can track price changes.
 
 **Acceptance Criteria:**
-- [ ] Dockerfile avec Bun runtime
-- [ ] docker-compose.yml pour orchestration facile
-- [ ] Variables d'environnement : DB_PATH, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, PICOCLAW_API_KEY
-- [ ] Volume pour persistance BDD
-- [ ] Documentation déploiement (README.md)
-- [ ] Healthcheck endpoint pour vérifier que le container tourne
+- Playwright script navigates to Expedia search for "Arzo Makati"
+- Extracts price from search results
+- Saves raw HTML/JSON to `storage/expedia/` with timestamp
+- Extracts price, date, and room type
+- Returns structured data: `{ hotel: "Arzo Makati", source: "expedia", price: number, scrapedAt: string }`
+- Error handling for network failures and selector changes
+- Script runs as standalone: `node scrapers/expedia.ts`
+
+### US-006: PicoClaw Price Analysis & Storage
+**Description:** As a system, I want PicoClaw to analyze scraped page copies and extract prices so that data is stored accurately in SQLite.
+
+**Acceptance Criteria:**
+- PicoClaw reads raw HTML/JSON from `storage/` directory
+- Uses LLM to parse and extract prices from each site's format
+- Validates extracted prices (sanity check for reasonable values)
+- Inserts valid prices into SQLite `prices` table with hotel_id, source, price, scraped_at
+- Handles failed extractions gracefully (logs error, continues with next site)
+- Stores extraction metadata (confidence score if available)
+- Workflow runs hourly via PicoClaw cron
+
+### US-007: Telegram Bot - Price Query
+**Description:** As Ezra, I want to query current prices via Telegram so that I can check them from my phone.
+
+**Acceptance Criteria:**
+- Telegram bot responds to `/prices` command
+- Returns latest prices from all 4 sites for Arzo Makati
+- Format: clear, readable message with site, price, and timestamp
+- `/latest` returns the most recent price across all sites
+- `/history` returns price history for last 24 hours
+- Commands restricted to Ezra's Telegram user ID only
+
+### US-008: Telegram Bot - Clock-in/Out Control
+**Description:** As Ezra, I want to start/stop monitoring with clock-in/clock-out commands so that I control when the system runs.
+
+**Acceptance Criteria:**
+- `/clockin` command starts monitoring and logs work session to SQLite
+- `/clockout` command stops monitoring and calculates session duration
+- `/status` command shows current monitoring state (active/inactive)
+- Clock-in/clock-out only allowed if monitoring is in appropriate state
+- All clock events logged to SQLite `work_sessions` table
+- System respects clock-out to stop future scraping until next clock-in
+
+### US-009: Telegram Bot - Error Notifications
+**Description:** As Ezra, I want to receive error notifications via Telegram so that I know when scraping fails.
+
+**Acceptance Criteria:**
+- System sends Telegram message on scraping failures (any site)
+- Error message includes: site, error type, timestamp
+- No notification on successful scraping (to avoid spam)
+- Multiple errors aggregated into single message if occurring within same hour
+- Notification includes suggested action if available
+
+### US-010: SQLite Database Management
+**Description:** As a system, I want a reliable SQLite database so that price and session data persists.
+
+**Acceptance Criteria:**
+- Database created automatically if missing: `./data/prices.db`
+- Schema includes tables: `hotels`, `prices`, `work_sessions`
+- `hotels` table: id, name, location, checkin, checkout, last_scraped_at, created_at
+- `prices` table: id, hotel_id, date, source, price, scraped_at
+- `work_sessions` table: id, hotel_id, clock_in, clock_out, duration, created_at
+- Database connection pooling for concurrent access
+- Automatic migration on schema changes
 
 ## Functional Requirements
 
-- **FR-1** : Le système doit scraper 4 sites d'hôtel (Agoda, Booking, C-Trip, Expedia) toutes les heures
-- **FR-2** : Le système doit stocker toutes les données dans une BDD SQLite persistante
-- **FR-3** : Le système doit analyser les prix avec PicoClaw après chaque scraping
-- **FR-4** : Le système doit permettre à Ezra de clock-in/out manuellement
-- **FR-5** : Le système doit envoyer des notifications Telegram uniquement en cas d'erreur
-- **FR-6** : Le système doit permettre de copier-coller facilement les données (tableau web + format Excel)
-- **FR-7** : Le système doit avoir une page web simple de statut
-- **FR-8** : Le système doit être déployé en Docker container
+- FR-1: System must scrape Agoda, Booking, C-Trip, and Expedia every hour
+- FR-2: System must only scrape Arzo Makati hotel (no other hotels in MVP)
+- FR-3: System must save raw page copies for debugging and reference
+- FR-4: System must use PicoClaw LLM to extract prices from saved pages
+- FR-5: System must store all extracted prices in SQLite with timestamps
+- FR-6: System must provide a Telegram bot for price queries and monitoring control
+- FR-7: System must send error notifications to Telegram only (no success notifications)
+- FR-8: System must respect clock-in/clock-out to control monitoring state
+- FR-9: System must log all work sessions with timestamps and durations
+- FR-10: System must handle scraper failures gracefully (continue with next site)
 
 ## Non-Goals (Out of Scope)
 
-- Système de clock-in/out automatique (détecté par localisation/activité) - MVP = manuel
-- Pause automatique des notifications pendant le travail (Ezra le fera elle-même)
-- Comparaison de prix en temps réel avec alertes automatiques (trop complexe pour MVP)
-- Dashboard web complexe (MVP = page simple de statut)
-- Scraping de plus de 4 sites d'hôtel (future enhancement)
+- **Multi-hotel support** - MVP = Arzo Makati only
+- **Real-time price comparison** - Hourly scraping is sufficient
+- **Automatic price alerts** - Manual queries via Telegram only
+- **Web dashboard** - Telegram bot only for MVP
+- **Automatic clock-in/out detection** - Manual commands only
+- **Price trend analysis** - Raw data storage only, analysis future feature
+- **Historical data retention policy** - No cleanup in MVP
+- **Multiple hotel room types** - Main room type only for MVP
 
 ## Technical Considerations
 
-- **Technologies** : Bun (runtime), Playwright (scraping), SQLite (BDD), PicoClaw (LLM), Telegram Bot API
-- **Architecture** : Script principal d'orchestration + scripts individuels par site + script analyse + bot Telegram
-- **Tests** : TDD (Test Driven Development) avec Bun test
-- **Déploiement** : Docker pour portabilité facile
-- **BDD** : SQLite pour MVP (simple, facile à backup), futur PostgreSQL pour scaling
-- **Sécurité** : Pas de credentials hardcodées (tokens dans variables d'environnement)
+- **Orchestrator**: PicoClaw (Go-based AI agent, <10MB RAM)
+- **Scraping Runtime**: Node.js for Playwright scripts
+- **Scraping Framework**: Playwright (headless Chrome)
+- **Database**: SQLite with better-sqlite3 driver
+- **Telegram**: PicoClaw native Telegram channel
+- **LLM**: PicoClaw built-in LLM for price extraction
+- **Cron**: PicoClaw built-in cron for hourly execution
+- **Storage**: `storage/` directory for raw page copies
+- **Configuration**: PicoClaw `~/.picoclaw/config.json`
+- **Security**: Credentials in PicoClaw config, no hardcoded secrets
 
 ## Success Metrics
 
-- Scraping réussi sur les 4 sites 95% du temps
-- PicoClaw analyse réussie 90% du temps
-- Latence scraping < 5 min pour les 4 sites
-- Aucune perte de données BDD
-- Notifications Telegram reçues en < 30 sec après erreur
+- Successful scraping on all 4 sites 95% of the time
+- Price extraction accuracy > 90% (correct values from pages)
+- End-to-end workflow (scrape → analyze → store) < 5 minutes
+- Telegram bot response time < 2 seconds
+- Zero database data loss over 30-day period
+- Error notifications sent within 1 minute of failure
 
 ## Open Questions
 
-- **Q1** : PicoClaw API key gratuite ou payante pour volume de données quotidien ?
-- **Q2** : Faut-il implémenter un système de retry avec backoff exponentiel pour les scrapers ?
-- **Q3** : L'interface de copier-coller doit-elle être planifiée (automatique) ou manuelle (à la demande) ?
-
----
-
-**Created with:** AETHER PRD Generator (adapted from Agent Zero)
-**Project:** Ezra Price Scraper
-**For:** Ezra (Nana - Ludo's wife)
+- Q1: Should PicoClaw store full HTML page copies or only relevant DOM snippets?
+- Q2: How long to keep raw page copies in `storage/` directory? (cleanup policy)
+- Q3: Should Telegram bot include price change percentage vs. previous scrape?
+- Q4: Clock-in/clock-out: Should it stop only scraping or also stop Telegram queries?
+[/PRD]

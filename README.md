@@ -33,165 +33,114 @@ The system uses PicoClaw as the central orchestrator. Every hour, PicoClaw launc
 ```
 ezra-price-scraper/
 ├── .picoclaw/              ← PicoClaw workspace & config
-│   ├── config.json        ← PicoClaw configuration
+│   ├── config.json        ← PicoClaw configuration (agents, channels, cron)
 │   ├── workspace/
 │   │   ├── cron/          ← Scheduled jobs (hourly scraping)
 │   │   ├── memory/        ← Long-term memory
 │   │   └── sessions/      ← Chat sessions
-├── scrapers/              ← Playwright scrapers (TypeScript/Bun)
-│   ├── agoda.ts
-│   ├── booking.ts
-│   ├── ctrip.ts
-│   └── expedia.ts
-├── ui/                    ← SvelteKit dashboard
-│   └── ...
-├── database/              ← SQLite database & migrations
-│   └── schema.sql
+├── scrapers/              ← Playwright scrapers (TypeScript/Node.js)
+│   ├── agoda.ts         ← Agoda scraper (active)
+│   ├── booking.ts       ← Booking.com scraper (TODO)
+│   ├── ctrip.ts         ← C-Trip scraper (TODO)
+│   └── expedia.ts       ← Expedia scraper (TODO)
+├── database/              ← SQLite schema & setup
+│   └── schema.sql       ← Database schema
 ├── scripts/               ← Setup & utility scripts
-├── docker/                ← Dockerfile & docker-compose.yml
-└── package.json           ← Node dependencies
+│   ├── init-db.sh       ← Initialize SQLite database
+│   └── scrape-all.sh    ← Run all scrapers
+├── storage/               ← Raw page copies (for debugging)
+│   ├── agoda/
+│   ├── booking/
+│   ├── ctrip/
+│   └── expedia/
+├── data/                  ← SQLite database file
+│   └── prices.db        ← Generated database
+├── docs/                  ← Documentation
+│   ├── PRD.md           ← Complete PRD
+│   └── URLS.md          ← Test URLs and parameters
+├── docker/                ← Docker configuration
+├── AGENTS.md             ← Agent guide for LLM developers
+├── package.json           ← Node dependencies
+└── README.md             ← This file
 ```
 
 ## Getting Started
 
 ```bash
 # Install dependencies
-bun install
+npm install
 
 # Install Playwright browsers
-bunx playwright install chromium
+npx playwright install chromium
 
 # Initialize database
-bun run setup-db
+npm run init-db
 
-# Start development server
-bun run dev
+# Run Agoda scraper (manual test)
+node scrapers/agoda.ts 2026-03-18 2026-03-19 1 0 1
+
+# Run all scrapers
+npm run scrape:all
 ```
 
 ## Development
 
 ```bash
 # Run type checking
-bun run typecheck
+npm run typecheck
 
 # Run linting
-bun run lint
+npm run lint
 
-# Run tests (future)
-bun test
+# Run specific scraper
+npm run scrape:agoda <checkIn> <checkOut>
 ```
 
-## Production
+## Production (PicoClaw)
 
 ```bash
-# Build for production
-bun run build
+# Initialize PicoClaw
+picoclaw onboard
 
-# Build Docker image
-docker build -t ezra-scraper .
+# Configure PicoClaw
+# Edit ~/.picoclaw/config.json with:
+# - Telegram bot token
+# - Ezra's user ID
+# - LLM API keys
 
-# Run with Docker
-docker-compose up -d
+# Start PicoClaw gateway (orchestration + Telegram bot)
+picoclaw gateway
+
+# Cron jobs will run automatically every hour
+# Use: picoclaw cron list to view scheduled jobs
 ```
 
 ## User Stories Implementation
 
-Based on the PRD, we have 8 user stories:
+For complete user stories, acceptance criteria, and implementation status, see `docs/PRD.md`.
 
-### ✅ US-008: Orchestration & Docker Deployment - IMPLEMENTED
-**Location:** PicoClaw (central orchestrator)
-**Status:** ✅ Active - Complete system
+### Current Status
 
-**Implemented features:**
-- ✅ PicoClaw as central orchestrator and AI agent system
-- ✅ Hourly automated scraping via PicoClaw cron jobs
-- ✅ Launches Playwright scrapers (4 sites) via exec tool
-- ✅ Stores page copies for reference
-- ✅ Analyzes data using PicoClaw LLM capabilities
-- ✅ Saves extracted prices to SQLite database
-- ✅ Error handling and retry logic
-- ✅ Telegram integration via PicoClaw channel
-- ✅ Docker containerization for deployment
+**Implemented (MVP):**
+- ✅ Project structure with PicoClaw architecture
+- ✅ Database schema and initialization script
+- ✅ Agoda scraper (first scraper active)
+- ✅ PicoClaw configuration template
+- ✅ Documentation (PRD, URLs, AGENTS.md)
 
-### ✅ US-003: SQLite Database - IMPLEMENTED
-**Location:** `src/database/db.ts` (database schema & connection)
+**Pending (Next Steps):**
+- ⏳ Complete remaining scrapers (Booking, C-Trip, Expedia)
+- ⏳ PicoClaw cron job setup for hourly execution
+- ⏳ PicoClaw LLM price extraction from scraped pages
+- ⏳ SQLite database integration with PicoClaw
+- ⏳ Telegram bot commands implementation
+- ⏳ Clock-in/out control logic
 
-**Status:** ✅ Active - Database ready
-
-**Implemented features:**
-- ✅ Automatic SQLite database creation if it doesn't exist
-- ✅ Tables defined: `hotels`, `prices`, `work_sessions`
-- ✅ Simple interface for database interaction
-- ✅ Methods to save prices and work sessions
-- ✅ Automatic data cleanup for old records
-
-### ✅ US-002: Multi-site Scraper - IMPLEMENTED
-**Location:** `src/scrapers/` (Agoda, Booking, C-Trip, Expedia scrapers)
-
-**Status:** ✅ Active - Stubs created
-
-**Implemented features:**
-- ✅ Scrapers for Agoda, Booking, C-Trip, Expedia (4 sites)
-- ✅ Playwright browser init for each scraper
-- ✅ Navigation logic to search site
-- ✅ Price extraction from search results
-- ✅ Error handling (retry, logging, timeout)
-- ✅ Result saving to database
-
-### ✅ US-001: Manual Clock-in/out - IMPLEMENTED
-**Location:** `src/clockin/clockin.ts` (work session management)
-
-**Status:** ✅ Active - Clock-in system created
-
-**Implemented features:**
-- ✅ Work hours recording (clock-in/clock-out)
-- ✅ Duration calculation for each session
-- ✅ Simple interface to see current status (Working / Not Working)
-- ✅ Session history available
-- ✅ Association with hotel for productivity tracking
-
-### ✅ US-005: Telegram Notifications - IMPLEMENTED
-**Location:** PicoClaw Telegram channel (native integration)
-
-**Status:** ✅ Active - Notification system ready
-
-**Implemented features:**
-- ✅ PicoClaw native Telegram channel integration
-- ✅ Query price data via Telegram commands
-- ✅ Error-only notifications (as specified in PRD)
-- ✅ Flexible configuration in PicoClaw config.json
-- ✅ Real-time data access from mobile
-
-### ⏳ US-006: Copy-paste Interface - PENDING
-**Location:** `src/ui/` (future SvelteKit)
-
-**Status:** ⏳ Pending - Not yet implemented
-
-**Implemented features:**
-- ❌ SvelteKit web interface not yet created
-- ❌ "Copy to Clipboard" button not yet implemented
-- ❌ Recent prices table not yet created
-- ❌ Filters by date, hotel, source not yet implemented
-
-**Prerequisites for US-006:**
-- ✅ Working price storage system (US-003)
-- ✅ Lightweight, fast web UI (SvelteKit)
-
-### ⏳ US-007: Simple Status Web Page - PENDING
-**Location:** `src/ui/pages/status.ts` (status page)
-
-**Status:** ⏳ Pending - Not yet implemented
-
-**Implemented features:**
-- ❌ Simple static page not yet created
-- ❌ Statuses to display (last successful scraping, clock-in/out state, price count)
-- ❌ Simple, clear design
-- ❌ No login required
-- ❌ Deployed with Docker container
-
-**Prerequisites for US-007:**
-- ✅ Working orchestration system (US-008)
-- ✅ Access to price and session data (US-003, US-001)
+**Out of Scope (Future):**
+- ❌ Web dashboard (Telegram bot only for MVP)
+- ❌ Multi-hotel support (Arzo Makati only)
+- ❌ Automatic price trend analysis
+- ❌ Historical data cleanup policy
 
 ## PicoClaw Architecture
 
